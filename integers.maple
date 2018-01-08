@@ -1,0 +1,15 @@
+integers := module ()
+  description "euclidean domain wrapper for the integers";
+  export `+`, `-`, `*`, zero, one, euclidean_division, quo, rem;
+  `+` := proc (a, b) options operator, arrow; a+b end proc;
+  `-` := proc (a, b) options operator, arrow; a-b end proc;
+  `*` := proc (a, b) options operator, arrow; a*b end proc;
+  quo := iquo;
+  rem := irem;
+  euclidean_division := proc (a, b)
+    RETURN(quo(a, b), rem(a, b))
+  end proc;
+  zero := 0;
+  one := 1
+end module;
+

@@ -1,0 +1,7 @@
+read "interface.maple";
+
+with(Interface);
+
+define('ring', '`+`', '`-`', '`*`', zero, one);
+
+extend('euclidean_domain', 'ring','euclidean_function', 'euclidean_division', 'quo', 'rem');
