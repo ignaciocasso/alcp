@@ -1,0 +1,20 @@
+#algoritmo de garner para calcular el inverso del teorema chino de los restos para los enteros
+#para generalizarlo a cualquier dominio euclideo, habria que generalizar eea, y sustituir 
+#+,-/2,* y mod por los del dominio euclideo (mod=rem)
+
+inverso_mod := proc(k,m)
+  local g,s,t = eea(k,m); #g=1, si no no hay inverso
+  RETURN(s);
+end proc;
+
+
+garner := proc(m,v)
+  local inv := 0;
+  local pm := 1;
+  for i from 1 to nops(m) do
+    u[i]:=(v[i]-inv)*inverso_mod(pm,m[i]) mod m[i];
+    inv := u + u[i]*pm;
+    pm := pm*m[i];
+  end do;
+  RETURN(inv mod pm);
+end proc;
