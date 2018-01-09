@@ -1,0 +1,14 @@
+#algoritmo de euclides extendido con mcd unico para los enteros. Para generalizarlo a cualquier dominio
+#euclideo, suponiendo eea ya generalizado, basta con sustituir abs,sign,y / por las funciones
+#normal_part(), unit_part() y / del dominio euclideo, si las tienen. Se usa / porque la division es exacta,
+#ya que el segundo miembro es una unidad (a/b = a*inv(b) = quotient(a,b)), cualquiera de las 3 vale
+#(es trivial comprobar que quotient es unico en este caso)
+
+eea_enico := proc (a, b)
+  local a2 := abs(a);
+  local b2 := abs(b);
+  g,s,t := eea(a2,b2);
+  s := s/(sign(a)*sign(g));
+  t := t/(sign(b)*sign(g));
+  RETURN((abs(g),s,t));
+end proc;

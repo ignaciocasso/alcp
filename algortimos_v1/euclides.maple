@@ -1,0 +1,15 @@
+#Algoritmo de euclides para los enteros. Para generalizarlo a dominios
+#euclideos basta con sustituir irem y 0 por la funcion remainder() y
+#el elemento zero del dominiio euclideo (suponiendo que la division euclidea es computable
+#en ese dominio, si no lo pues no hay nada que hacer)
+
+euclides := proc (a, b)
+  local c, d, r;
+  c := a; d := b;
+  while d <> 0 do
+    r := irem(c, d);
+    c := d;
+    d := r;
+  end do;
+  RETURN(c);
+end proc;

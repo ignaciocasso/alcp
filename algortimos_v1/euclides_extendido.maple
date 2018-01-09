@@ -1,0 +1,16 @@
+#algoritmo de euclides extendido para los enteros. Para generalizarlo a cualquier dominio euclideo
+#basta con sustituir 0, iquo, -, * por el zero,quotient(),- y * del dominio euclideo, donde -
+#es el operador binario ( a-b = a+(-b) )
+
+eea := proc (a, b)
+  local c, c1, c2, d, d1, d2, q, r, r1, r2;
+  c,c1,c2 := a,1,0;
+  d,d1,d2 := b,0,1;
+  while d <> 0 do
+    q := iquo(c, d);
+    r := c-q*d; r1 := c1-q*d1; r2 := c2-q*d2;
+    c,c1,c2 := d,d1,d2;
+    d,d1,d2 := r,r1,r2;
+  end do;
+  RETURN((c, c1, c2));
+end proc;

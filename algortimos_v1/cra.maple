@@ -1,0 +1,22 @@
+#Algoritmo para calcular el inverso del teorema chino de los restos para los enteros
+#Para generalizarlo a qualquier dominio, suponiendo eea ya generalizado, basta con sustituir
+# *,/,mod,+ por los del dominio euclideo, y redefinir product y sum para que funciones con las
+#nuevas versiones de + y *.
+#Se usa / porque se sabe que la division es exacta, quotient() tambien valdria (es facil ver que en este
+#caso quotient es unico en cualquier dominio euclideo).
+#El algoritmo funciona perfectamente aunque eea o remainder() no tengan solucion unica, lo unico que
+#la solucion del algoritmo tampoco lo sera. Si se quiere solucion unica, hace falta un remainder unico
+#y consistente (mod en nuestro caso).
+
+
+inverso := proc (m, v)
+  local k, s;
+  local prod = product(m[i], i = 1 .. nops(m));
+  for i to nops(m) do
+    k[i] := prod/m[i];
+    _, s, _ := eea(k[i],m[i]);
+    c[i] := v[i]*s mod m[i];
+  end do;
+  local ret := sum(c[i]*k[i], i = 1 .. nops(m));
+  RETURN(ret mod prod);
+end proc;
