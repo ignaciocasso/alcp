@@ -1,0 +1,41 @@
+module FieldElem()
+  option object;
+  local field;
+
+  export field,zero,`+`,neg,`-`,one,`*`,inverse,`^`,`/`,quo,rem;
+
+  field::static :- proc(e:FieldElem)
+    e:-field;
+  end proc;
+
+  `-`::static := proc( e1::FieldElem, e2::FieldElem)
+    e1+neg(e2);
+  end proc;
+
+  export `^`::static := proc( e::FieldElem, n::integer )
+    if n>=0 then
+      ret:=e:-field:-one;
+      for i from 1 to n do
+        ret:=ret*e;
+      end do;
+    elif n==-1 then
+      ret:-inverse(e);
+    else
+      error "exponente negativo y no -1"
+    end if;
+    ret;      
+  end proc;
+
+  export `/`::static := proc( e1::FieldElem, e2::FieldElem )
+    e1*inverse(e2);
+  end proc;
+
+  export quo::static := proc( e1::FieldElem, e2::FieldElem )
+    e1*inverse(e2);
+  end proc;
+
+  export rem::static := proc( e1::FieldElem, e2::FieldElem )
+    e1:-field:-0;
+  end proc;
+
+end module:
