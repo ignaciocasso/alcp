@@ -1,0 +1,24 @@
+# La distinct degree factorization de f en Fq[x] es (g1,...,gm), con gi el producto de todos los polinomios monicos irreducibles
+# de grado i que dividen a f
+
+# Teorema: x^(q^d) - x es el producto de todos los polinomios monicos e irreducibles de Fq[x] cuyo grado divide a d
+
+# Algoritmo: f1 = f, gi = mcd(x^(q^i)-x,fi), fi = f[i-1/g[i-1]
+
+
+distinct_degree := proc(f,x,p,k)
+  local i:=1;
+  local w := x;
+  while f<>1 do # suponemos que f es monico, si no seria degree(f)<>0
+    w := Powmod(w,q,f,x) mod p;
+    g[i] := mcd(w-x,f);
+    f := f/g[i];
+    i := i+1;
+  end do;
+  return g;
+end proc;
+
+
+#Posibles optimizaciones:
+  # mcd(w-x,f) = mcd(rem(w,f)-x,f), y se puede hacer w^q mod f, que es mas eficaz que hacerlo por separado. IMPLEMENTADA
+  # Antes del i++, w=w mod f. Lo hace el libro de geddes, sera por algo

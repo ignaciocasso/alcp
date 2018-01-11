@@ -1,4 +1,13 @@
-# Rabin algorithm para polinimio en Fq[x], donde Fq es Zp(w) == Zp/<f>, con w raiz de f irreducible
+# Algoritmo de Rabin para comprobar si un polinimio de Fq[x] es irreducible
+
+# Los elementos de Fq los representamos como elementos de Zp(alpha), con alpha la raiz de un polinomio irreducible en Zp[x]
+# Por lo tanto los elementos de Fq[x] los representamos como polinomios de Zp[alpha,x]
+
+# Teorema: x^(q^d) - x es el producto de todos los polinomios monicos irreducibles de Fq[x] cuyo grado
+# divide a d
+
+# Conclusion: f polinomio monico de grado n es irreducible si y solo si f | x^(q^n)-x
+# y gcd(x^(q^(n/t))-x,f) = 1 para todo t divisor primo de n
 
 irreducible := proc (f, q, x)
   local a, t, n;
@@ -17,6 +26,9 @@ irreducible := proc (f, q, x)
   end do;
   return true;
 end proc;
+
+# Mejoras:
+  # usar el modular composition algorithm para calcular x^(q^k) mod f
 
 
 p := 281;
