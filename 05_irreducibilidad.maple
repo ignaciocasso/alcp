@@ -1,17 +1,36 @@
-#rabin algorithm
+# Rabin algorithm para polinimio en Fq[x], donde Fq es Zp(w) == Zp/<f>, con w raiz de f irreducible
 
-irreducible := proc(g,n,p,q,x)  #comprueba si el polinomio g sobre x de grado n con coeficientes en q=p'k es irreducible
-  a := Powmod(x,q^n,f,x) mod p;
-  if a<>x then
-    return false;
+irreducible := proc (f, q, x)
+  local a, t, n;
+  n := degree(f, x);
+  a := `mod`(Powmod(x, q^n, f, x), p);
+  if a <> x then
+    return false
   end if;
-  for t from 2 to iquo(n,2) do
-    if isprime(t) and irem(n,t)==0 then
-      a:=Powmod(x,q^(n/t),f,x) mod p;
-      if Gcd(b-x,f) mod p <> 1 then #funcionara para Fq?
-        return false;
-      end if;
-    end if;
+  for t from 2 to iquo(n, 2) do
+    if isprime(t) and irem(n, t) = 0 then
+      a := `mod`(Powmod(x, q^(n/t), f, x), p);
+      if `mod`(Gcd(a-x, f), p) <> 1 then
+        return false
+      end if
+    end if
   end do;
   return true;
 end proc;
+
+
+p := 281;
+
+n := 4;
+
+f := Randprime(n, x)  mod p;
+
+alias(w = RootOf(f));
+
+g := `mod`(Randpoly(5, x, w), p);
+
+g := x^6+collect(g, [x]);
+
+q := p^n;
+
+irreducible(g, q, x);
