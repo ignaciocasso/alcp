@@ -1,3 +1,14 @@
+
+
+######## No funciona. No basta con la consideracion que se hace abajo para el caso de cuerpos con
+#######  caracteristica no nula. mcd(f,f¡) no tiene porque ser prod gi^(i-1), ya que si i es multiplo
+######   de p, gi divide a i*gi'
+
+
+
+
+
+
 #algoritmo de yun para square free factorization
 
 # La factorizacion libre de cuadrados de f en Fq[x] es (g1,...,gm), con f = prod gi^i, gm!=0, mcd(gi,gj)=1
@@ -6,7 +17,7 @@
 # mcd(f,f') = prod gi^(i-1)
 # w = f/c = prod gi
 # y = f'/c = prod (i*gi'*prod(gj))       (j!=i)
-# z = y - w' = prod((i.1)*gi'*prod(gj)) = g1*(...) (j!=i)
+# z = y - w' = prod((i-1)*gi'*prod(gj)) = g1*(...) (j!=i)
 # mcd(w,z) = g1, y si f2=c=f/w entonces w2=w/g1 y y2=z/g1
 # Se puede comprobar todo esto, pero es un coñazo
 
@@ -35,7 +46,7 @@ square_free := proc (f, p, k, x)
   y := Quo(df, c, x) mod p;
   z := derivative(w, x, p);
   z := y-z;
-  while f2 <> 1 and i<3 do
+  while f2 <> 1 and i<5 do
     g := Gcd(w, z) mod p;
     print(g);
     #print(f2);
