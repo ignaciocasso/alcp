@@ -15,438 +15,54 @@
 # no multiplos de p sean nulos, asi que es facil de tratar (f = h^p para un polinomio h facil de calcular)
 
 
-square_free := proc(f,p,k,x) #square_free factorization de f un polinomio de Fq[x], q=p^k
-  local q := p^k;
-  local n := degree(f,n);
-  df := Diff(f,x) mod p;
-  if df=0 then     #expand antes?  # necesariamente f = sum a_pi*x^pi = h^p, con h=sum a_pi*x^i
-    f2 := sum(coeff(f,x,p*i)*x^i, i=0..iquo(n,p));  #comprobar si se puede sustituir por /
-    sqf := square_free(f2,p,k,x);
-    for i from 1 to iquo(n,p) do
-      ret[p*i] := sqf[i];  #Seran las demas 0? 
+square_free := proc (f, p, k, x)
+  local df, f2, sqf, i, ret, c, w, y, z, q, n,g;
+  q := p^k;
+  n := degree(f, n);
+  df := derivative(f, x, p);
+  if df = 0 then
+    f2 := sum(coeff(f, x, p*i)*x^i, i = 0 .. iquo(n, p));
+    sqf := square_free(f2, p, k, x);
+    for i to iquo(n, p) do
+      ret[p*i] := sqf[i]
     end do;
-    return ret;
+    return ret
   end if;
-  i:=1;
-  c := Gcd(f,df) mod p;
-  w := f/c;	 #funciona? Quo() si no
-  y := df/c;
-  z := Diff(w,x) mod p;
+  i := 1;
+  f2:=f;
+  c := Gcd(f, df) mod p;
+  w := Quo(f, c, x) mod p;
+  y := Quo(df, c, x) mod p;
+  z := derivative(w, x, p);
   z := y-z;
-  while z<>0 do
-    ret[i] := Gcd(w,z) mod p;
-    w := w/ret[i];
-    y := z/ret[i];
-    z := Diff(w,x) mod p;
-    z := y - z;
+  while f2 <> 1 and i<3 do
+    g := Gcd(w, z) mod p;
+    print(g);
+    #print(f2);
+    #print(w);
+    f2 := Quo(f2,w,x) mod p;
+    print(f2);
+    w := Quo(w, g, x) mod p;
+    print(w);
+    y := Quo(z, g, x) mod p;
+    print(y);
+    z := derivative(w, x, p);
+    print(z);
+    z := y-z;
+    print(z);
+    g||i := g;
     i := i+1;
   end do;
-  return ret;
+  return seq(g||j, j =1..i-1);
 end proc;
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-square_free := proc (f, p, k, x) local df, f2, sqf, i, ret, c, w, y, z, q, n; q := p^k; n := degree(f, n); df := derivative(f, x, p); if df = 0 then f2 := sum(coeff(f, x, p*i)*x^i, i = 0 .. iquo(n, p)); sqf := square_free(f2, p, k, x); for i to iquo(n, p) do ret[p*i] := sqf[i] end do; print(sqf); return ret end if; i := 1; c := `mod`(Gcd(f, df), p); w := `mod`(Quo(f, c, x), p); y := `mod`(Quo(df, c, x), p); z := derivative(w, x, p); z := y-z; while z <> 0 do ret[i] := `mod`(Gcd(w, z), p); print(ret[i]); w := `mod`(Quo(w, ret[i], x), p); print(w); y := `mod`(Quo(z, ret[i], x), p); print(y); z := derivative(w, x, p); z := y-z; print(z); return ret[i]; i := i+1 end do; print(i); return ret end proc;
-print(`output redirected...`); # input placeholder
-proc(f, p, k, x)  ...  end;
-dev := proc (f, x, p) local n; n := degree(f, x); return `mod`(coeff(f, x, n)*n*x^(n-1), p) end proc;
-print(`output redirected...`); # input placeholder
-proc(f, x, p)  ...  end;
-
-print(`output redirected...`); # input placeholder
-proc(f, x, p)  ...  end;
-derivative := proc (f, x, p) map(collect(dev, [x]), f, x, p) end proc;
-print(`output redirected...`); # input placeholder
-proc(f, x, p)  ...  end;
-randmonicpoly := proc (degree, var, root, p) local h; h := `mod`(Randpoly(degree-1, var, root), p); return collect(var^degree+h, [x]) end proc;
-print(`output redirected...`); # input placeholder
-proc(degree, var, root, p)  ...  end;
-
-print(`output redirected...`); # input placeholder
-proc(degree, var, root, p)  ...  end;
-p := 3;
-print(`output redirected...`); # input placeholder
-                               3
-
-print(`output redirected...`); # input placeholder
-                               3
-k := 2;
-print(`output redirected...`); # input placeholder
-                               2
-q := p^k;
-print(`output redirected...`); # input placeholder
-                               9
-f := `mod`(Randprime(k, x), p);
-print(`output redirected...`); # input placeholder
-                            2        
-                           x  + x + 2
-alias(alpha = RootOf(f));
-print(`output redirected...`); # input placeholder
-                            w, alpha
-h1 := randmonicpoly(5, x, alpha, p);
-print(`output redirected...`); # input placeholder
-  5      4                3      2                            
- x  + 2 x  + (alpha + 1) x  + 2 x  + (2 alpha + 1) x + 2 alpha
-h2 := randmonicpoly(10, x, alpha, p);
-print(`output redirected...`); # input placeholder
-  10            9                  8            7            6
- x   + 2 alpha x  + (2 alpha + 2) x  + 2 alpha x  + 2 alpha x 
-
-                     5                4                  3    2
-    + (2 alpha + 2) x  + (alpha + 2) x  + (2 alpha + 2) x  + x 
-
-    + x + 2 alpha
-h3 := randmonicpoly(12, x, alpha, p);
-print(`output redirected...`); # input placeholder
-         12                11                10          8
-    1 + x   + (alpha + 1) x   + (alpha + 2) x   + alpha x 
-
-                        7          6      5                4
-       + (2 alpha + 2) x  + alpha x  + 2 x  + (alpha + 2) x 
-
-                3          2                  
-       + alpha x  + alpha x  + (2 alpha + 2) x
-g := `mod`(((h1*h1)*h1*h2*h2)*h3, p);
-print(`output redirected...`); # input placeholder
-/ 5      4                3      2                            \   
-\x  + 2 x  + (alpha + 1) x  + 2 x  + (2 alpha + 1) x + 2 alpha/^3 
-
-  / 10            9                  8            7            6
-  \x   + 2 alpha x  + (2 alpha + 2) x  + 2 alpha x  + 2 alpha x 
-
-                    5                4                  3    2
-   + (2 alpha + 2) x  + (alpha + 2) x  + (2 alpha + 2) x  + x 
-
-                \   /     12                11                10
-   + x + 2 alpha/^2 \1 + x   + (alpha + 1) x   + (alpha + 2) x  
-
-            8                  7          6      5
-   + alpha x  + (2 alpha + 2) x  + alpha x  + 2 x 
-
-                  4          3          2                  \
-   + (alpha + 2) x  + alpha x  + alpha x  + (2 alpha + 2) x/
-g := `mod`(Expand(g), p);
-print(`output redirected...`); # input placeholder
- 8      7      10    15      16    14    13            4
-x  + 2 x  + 2 x   + x   + 2 x   + x   + x   + 2 alpha x 
-
-              3            2            9          7    34      
-   + 2 alpha x  + 2 alpha x  + 2 alpha x  + alpha x  + x   alpha
-
-            29          23            44    40      38      37
-   + alpha x   + alpha x   + alpha + x   + x   + 2 x   + 2 x  
-
-      10                  8            5      2    11      12
-   + x   alpha + 2 alpha x  + 2 alpha x  + 2 x  + x   + 2 x  
-
-      5      4      22          24          22          25
-   + x  + 2 x  + 2 x   + alpha x   + alpha x   + alpha x  
-
-              31            27    19          14      
-   + 2 alpha x   + 2 alpha x   + x   alpha + x   alpha
-
-        13            15            45    43      39    36
-   + 2 x   alpha + 2 x   alpha + 2 x   + x   + 2 x   + x  
-
-              12    47    46            46          45
-   + 2 alpha x   + x   + x   + 2 alpha x   + alpha x  
-
-            44      21      30      19      24    23    33    29
-   + alpha x   + 2 x   + 2 x   + 2 x   + 2 x   + x   + x   + x  
-
-        27    32    28            41            36          35
-   + 2 x   + x   + x   + 2 alpha x   + 2 alpha x   + alpha x  
-
-            32            26
-   + alpha x   + 2 alpha x  
-g := collect(g, [x]);
-print(`output redirected...`); # input placeholder
-   16            3                  2                19
-2 x   + 2 alpha x  + (2 alpha + 2) x  + (alpha + 2) x  
-
-                    4            9    34                  40
-   + (2 alpha + 2) x  + 2 alpha x  + x   alpha + alpha + x  
-
-        38      37                  8                10    11
-   + 2 x   + 2 x   + (2 alpha + 1) x  + (alpha + 2) x   + x  
-
-            25            31    43      39    47
-   + alpha x   + 2 alpha x   + x   + 2 x   + x  
-
-                    46                45                44
-   + (2 alpha + 1) x   + (alpha + 2) x   + (alpha + 1) x  
-
-                    36                32                29
-   + (2 alpha + 1) x   + (alpha + 1) x   + (alpha + 1) x  
-
-                    27                24                23
-   + (2 alpha + 2) x   + (alpha + 2) x   + (alpha + 1) x  
-
-                  22                14                  13
-   + (alpha + 2) x   + (alpha + 1) x   + (2 alpha + 1) x  
-
-                    12                7                  5
-   + (2 alpha + 2) x   + (alpha + 2) x  + (2 alpha + 1) x 
-
-        21      30    33    28                  15            41
-   + 2 x   + 2 x   + x   + x   + (2 alpha + 1) x   + 2 alpha x  
-
-            35            26
-   + alpha x   + 2 alpha x  
-g := sort(g, [x]);
-print(`output redirected...`); # input placeholder
- 47                  46                45                44    43
-x   + (2 alpha + 1) x   + (alpha + 2) x   + (alpha + 1) x   + x  
-
-              41    40      39      38      37
-   + 2 alpha x   + x   + 2 x   + 2 x   + 2 x  
-
-                    36          35          34    33
-   + (2 alpha + 1) x   + alpha x   + alpha x   + x  
-
-                  32            31      30                29
-   + (alpha + 1) x   + 2 alpha x   + 2 x   + (alpha + 1) x  
-
-      28                  27            26          25
-   + x   + (2 alpha + 2) x   + 2 alpha x   + alpha x  
-
-                  24                23                22      21
-   + (alpha + 2) x   + (alpha + 1) x   + (alpha + 2) x   + 2 x  
-
-                  19      16                  15
-   + (alpha + 2) x   + 2 x   + (2 alpha + 1) x  
-
-                  14                  13                  12
-   + (alpha + 1) x   + (2 alpha + 1) x   + (2 alpha + 2) x  
-
-      11                10            9                  8
-   + x   + (alpha + 2) x   + 2 alpha x  + (2 alpha + 1) x 
-
-                  7                  5                  4
-   + (alpha + 2) x  + (2 alpha + 1) x  + (2 alpha + 2) x 
-
-              3                  2        
-   + 2 alpha x  + (2 alpha + 2) x  + alpha
-`mod`(Factor(g, alpha), p);
-print(`output redirected...`); # input placeholder
-                        3                                   
-/             2        \             5 / 8          6      7
-\2 alpha x + x  + alpha/  (x + alpha)  \x  + alpha x  + 2 x 
-
-              5      6      3                      \   
-   + 2 alpha x  + 2 x  + 2 x  + 2 alpha x + 2 alpha/^2 
-
-                 3 /           2    \ / 10    9            7    8
-  (x + alpha + 2)  \alpha x + x  + 1/ \x   + x  + 2 alpha x  + x 
-
-            6      7          5            4      5            3
-   + alpha x  + 2 x  + alpha x  + 2 alpha x  + 2 x  + 2 alpha x 
-
-        4    3              2          \                2 
-   + 2 x  + x  + alpha x + x  + 2 x + 1/ (x + alpha + 1)  
-
-               3
-  (x + 2 alpha) 
-`mod`(Sqrfree(g), p);
-print(`output redirected...`); # input placeholder
-[   [[ 12          11    10          11      10          8
-[1, [[x   + alpha x   + x   alpha + x   + 2 x   + alpha x 
-
-              7          6      7          4      5          3
-   + 2 alpha x  + alpha x  + 2 x  + alpha x  + 2 x  + alpha x 
-
-        4          2                         ]  [       8    9
-   + 2 x  + alpha x  + 2 alpha x + 2 x + 1, 1], [alpha x  + x 
-
-            6    7      5            3      4            2      3
-   + alpha x  + x  + 2 x  + 2 alpha x  + 2 x  + 2 alpha x  + 2 x 
-
-                           ]                  [
-   + 2 alpha x + 2 x + 2, 2], [x + alpha, 5], [
-
-           3    4          2      3                  2           
-  2 alpha x  + x  + alpha x  + 2 x  + 2 alpha x + 2 x  + x + 2, 3
-
-  ]]]
-  ]]]
-dg := derivative(g, x, p);
-print(`output redirected...`); # input placeholder
-   10      15                  3                9
-2 x   + 2 x   + (2 alpha + 2) x  + (alpha + 2) x 
-
-                      7                    4            34
-   + 2 (2 alpha + 1) x  + 2 (2 alpha + 1) x  + 2 alpha x  
-
-      33          37                              24          25
-   + x   alpha + x   + 2 (2 alpha + 2) x + alpha x   + alpha x  
-
-        30          39      36      46    42                  22
-   + 2 x   alpha + x   + 2 x   + 2 x   + x   + 2 (alpha + 1) x  
-
-                  21                  13                  12
-   + (alpha + 2) x   + 2 (alpha + 1) x   + (2 alpha + 1) x  
-
-                  6                  45                  43
-   + (alpha + 2) x  + (2 alpha + 1) x   + 2 (alpha + 1) x  
-
-                    31                  28    27
-   + 2 (alpha + 1) x   + 2 (alpha + 1) x   + x  
-
-                  18          40
-   + (alpha + 2) x   + alpha x  
-c := `mod`(Gcd(g, dg), p);
-print(`output redirected...`); # input placeholder
-       6    10      15      16    14          3          2
-2 + 2 x  + x   + 2 x   + 2 x   + x   + alpha x  + alpha x 
-
-                        9            6            23          11
-   + alpha x + 2 alpha x  + 2 alpha x  + 2 alpha x   + alpha x  
-
-      10          2    11      4      22            24
-   + x   alpha + x  + x   + 2 x  + 2 x   + 2 alpha x  
-
-              22    19          17          16          14      
-   + 2 alpha x   + x   alpha + x   alpha + x   alpha + x   alpha
-
-      13                  18          12    25      19      23
-   + x   alpha + 2 alpha x   + alpha x   + x   + 2 x   + 2 x  
-
-   + x
-w := `mod`(Quo(g, c, x), p);
-print(`output redirected...`); # input placeholder
-     8    7      6      10      9    15      18    17      16
-  2 x  + x  + 2 x  + 2 x   + 2 x  + x   + 2 x   + x   + 2 x  
-
-          14    13            9            7          
-     + 2 x   + x   + 2 alpha x  + 2 alpha x  + 2 alpha
-
-                11            8      2    11    12    22
-     + 2 alpha x   + 2 alpha x  + 2 x  + x   + x   + x  
-
-        17            14          13                18
-     + x   alpha + 2 x   alpha + x   alpha + alpha x  
-
-          15                  12    21      
-     + 2 x   alpha + 2 alpha x   + x   + 2 x
-y := `mod`(Quo(dg, c, x), p);
-print(`output redirected...`); # input placeholder
-   8      7    6    10    15    20      18      17    16      14
-2 x  + 2 x  + x  + x   + x   + x   + 2 x   + 2 x   + x   + 2 x  
-
-              4          3            2                      11
-   + 2 alpha x  + alpha x  + 2 alpha x  + 2 alpha x + alpha x  
-
-      10                  5    2    11      3      5          20
-   + x   alpha + 2 alpha x  + x  + x   + 2 x  + 2 x  + alpha x  
-
-        19          16          14            13      
-   + 2 x   alpha + x   alpha + x   alpha + 2 x   alpha
-
-            12      21      
-   + alpha x   + 2 x   + 2 x
-z := derivative(w, x, p);
-print(`output redirected...`); # input placeholder
-   7    6          9      16      15    13    12            6
-  x  + x  + 2 + 2 x  + 2 x   + 2 x   + x   + x   + 2 alpha x 
-
-        10                7          10    21      16      
-     + x   alpha + alpha x  + x + 2 x   + x   + 2 x   alpha
-
-        13                12
-     + x   alpha + alpha x  
-print(`output redirected...`); # input placeholder
-                               w
-z := y-z;
-print(`output redirected...`); # input placeholder
-        8    7    10      9    15    20      18      17    16
--2 + 2 x  + x  - x   - 2 x  - x   + x   + 2 x   + 2 x   - x  
-
-        14    13            4          3            2            
-   + 2 x   - x   + 2 alpha x  + alpha x  + 2 alpha x  + 2 alpha x
-
-            7            6          11            5    2    11
-   - alpha x  - 2 alpha x  + alpha x   + 2 alpha x  + x  + x  
-
-      12      3      5          20      19          16      
-   - x   + 2 x  + 2 x  + alpha x   + 2 x   alpha - x   alpha
-
-      14          13          21    
-   + x   alpha + x   alpha + x   + x
-print(z);
-print(`output redirected...`); # input placeholder
-        8    7    10      9    15    20      18      17    16
--2 + 2 x  + x  - x   - 2 x  - x   + x   + 2 x   + 2 x   - x  
-
-        14    13            4          3            2            
-   + 2 x   - x   + 2 alpha x  + alpha x  + 2 alpha x  + 2 alpha x
-
-            7            6          11            5    2    11
-   - alpha x  - 2 alpha x  + alpha x   + 2 alpha x  + x  + x  
-
-      12      3      5          20      19          16      
-   - x   + 2 x  + 2 x  + alpha x   + 2 x   alpha - x   alpha
-
-      14          13          21    
-   + x   alpha + x   alpha + x   + x
-
-
-
-square_free(g, p, k, x);
-print(`output redirected...`); # input placeholder
-       11    12    10          11      10          8            7
-alpha x   + x   + x   alpha + x   + 2 x   + alpha x  + 2 alpha x 
-
-            6      7          4      5          3      4
-   + alpha x  + 2 x  + alpha x  + 2 x  + alpha x  + 2 x 
-
-            2                      
-   + alpha x  + 2 alpha x + 2 x + 1
-         9    10            8            7      8            6
-2 alpha x  + x   + 2 alpha x  + 2 alpha x  + 2 x  + 2 alpha x 
-
-              5          4      5            3      4      3    2
-   + 2 alpha x  + alpha x  + 2 x  + 2 alpha x  + 2 x  + 2 x  + x 
-
-   + 2 alpha + x
- 9          7            6    7          4          3    4      3
-x  + alpha x  + 2 alpha x  + x  + alpha x  + alpha x  + x  + 2 x 
-
-   + 2 x + 1
-                               0
-       11    12    10          11      10          8            7
-alpha x   + x   + x   alpha + x   + 2 x   + alpha x  + 2 alpha x 
-
-            6      7          4      5          3      4
-   + alpha x  + 2 x  + alpha x  + 2 x  + alpha x  + 2 x 
-
-            2                      
-   + alpha x  + 2 alpha x + 2 x + 1
-
+dev := proc (f, x, p)
+  local n := degree(f, x);
+  return coeff(f, x, n)*n*x^(n-1) mod  p;
+end proc;
+
+
+derivative := proc (f, x, p)
+  return map(collect(dev, [x]), f, x, p);
+end proc;
