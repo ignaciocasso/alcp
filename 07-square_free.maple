@@ -1,70 +1,58 @@
 
 
-######## No funciona. No basta con la consideracion que se hace abajo para el caso de cuerpos con
-#######  caracteristica no nula. mcd(f,f¡) no tiene porque ser prod gi^(i-1), ya que si i es multiplo
-######   de p, gi divide a i*gi'
+
+########## A COMPROBAR QUE FUNCIONA EN MAPLE
 
 
+# Algoritmo para calcular la factorizacion libre de cuadrados de un polinomio en Fq[x]
 
+# La factorizacion libre de cuadrados de f en Fq[x] es (g1,...,gm), con f = g1^1*...*gm^m y mcd(gi,gj)=1
 
+# Algoritmo basico para caracteristica 0
 
+  # f  = prod gi^i              
+  # f' = sum( i*gi^(i-1)*gi'*prod(gj^j) ) = prod(gi^(i-1)) * sum(i*gi'*prod(gj)), j!=i
 
-#algoritmo de yun para square free factorization
+  # c1 = mcd(f,f') = prod( gi^(i-1) )   , i=1..m
+  # w1 = f/c1 = prod(gi)                , i=1..m
+  # y1 = gcd(w1,c1) = prod(gi)          , i=2..m
+  # g1 = w1/y1
+  # w2 = y1
+  # c2 = c1/y1
+  # ... 
+  # wk = 1
 
-# La factorizacion libre de cuadrados de f en Fq[x] es (g1,...,gm), con f = prod gi^i, gm!=0, mcd(gi,gj)=1
+# Problemas con caracteristica no nula
 
-# Base matematica del algoritmo:
-# mcd(f,f') = prod gi^(i-1)
-# w = f/c = prod gi
-# y = f'/c = prod (i*gi'*prod(gj))       (j!=i)
-# z = y - w' = prod((i-1)*gi'*prod(gj)) = g1*(...) (j!=i)
-# mcd(w,z) = g1, y si f2=c=f/w entonces w2=w/g1 y y2=z/g1
-# Se puede comprobar todo esto, pero es un coñazo
-
-# f' podria ser 0 en un cuerpo de caracteristica 0, asi que hay que separar ese caso
-# Por suerte, la unica forma de que eso pase es que todos los coeficientes de exponentes
-# no multiplos de p sean nulos, asi que es facil de tratar (f = h^p para un polinomio h facil de calcular)
-
+  # dev gi^i = i*g^(i-1)gi' puede ser 0 (si y solo si i es multiplo de p), y entonces gi^i | f' y mcd(f,f') ya no seria el mismo.
+  # Si h=prod gi^i con p|i, entonces h|f'=> h|mcd(f,f'). Sin embargo, si se repiten los pasos de arriba se comprueba que
+  # el algoritmo sigue funcionando parcialmente, la unica diferencia es que h siempre divide a ci y que mcd(h,wi) y mcd(h,yi) son
+  # siempre 1. Los gi con i no multiplo de p se siguen obteniendo igual que antes y wi sigue convergiendo a 1, y cuando llega a 1
+  # ci es h, y faltan por calcular esos factores. Pero si en h solo quedan coeficentes xa[pi]*x^pi, entonces existe
+  # f2 = raiz_p(a[pi])*x^i tq h=f2^p, y se aplica el algoritmo recursivamente sobre f2
 
 square_free := proc (f, p, k, x)
-  local df, f2, sqf, i, ret, c, w, y, z, q, n,g;
   q := p^k;
   n := degree(f, n);
+  i := 1
   df := derivative(f, x, p);
-  if df = 0 then
-    f2 := sum(coeff(f, x, p*i)*x^i, i = 0 .. iquo(n, p));
+  c := Gcd(f,df) mod p;
+  w := Quo(f,c,x) mod p;
+  while w<>1 do
+    y := Gcd(w,c) mod p;
+    ret[i] := Quo(w, y, x) mod p;
+    i := i+1;
+    w := y;
+    c := Quo(c,y,x) mod p;
+  end do;
+  if c<>1 then  #Coeficientes multiplos de p. Si df no fue 0 y c acabo en uno no hay ninguno
+    f2 := p_root_pol(c,x,p,k);
     sqf := square_free(f2, p, k, x);
     for i to iquo(n, p) do
-      ret[p*i] := sqf[i]
+      ret[p*i] := sqf[i];
     end do;
-    return ret
   end if;
-  i := 1;
-  f2:=f;
-  c := Gcd(f, df) mod p;
-  w := Quo(f, c, x) mod p;
-  y := Quo(df, c, x) mod p;
-  z := derivative(w, x, p);
-  z := y-z;
-  while f2 <> 1 and i<5 do
-    g := Gcd(w, z) mod p;
-    print(g);
-    #print(f2);
-    #print(w);
-    f2 := Quo(f2,w,x) mod p;
-    print(f2);
-    w := Quo(w, g, x) mod p;
-    print(w);
-    y := Quo(z, g, x) mod p;
-    print(y);
-    z := derivative(w, x, p);
-    print(z);
-    z := y-z;
-    print(z);
-    g||i := g;
-    i := i+1;
-  end do;
-  return seq(g||j, j =1..i-1);
+  return ret
 end proc;
 
 
@@ -73,7 +61,16 @@ dev := proc (f, x, p)
   return coeff(f, x, n)*n*x^(n-1) mod  p;
 end proc;
 
-
 derivative := proc (f, x, p)
   return map(collect(dev, [x]), f, x, p);
 end proc;
+
+p_root_pol := proc(f,x,p,k) #supone que el polinomio solo tiene coeficientes multiplos de p (condicion necesaria para que la raiz exista)
+  local n := degree(f,x)  
+  f2 := sum( p_root(coeff(f, x, p*i),p,k) * x^i, i = 0..iquo(n, p));
+end proc;
+
+p_root(a,p,k)
+  Power(a,p^(k-1)) mod p;
+end proc;
+  
