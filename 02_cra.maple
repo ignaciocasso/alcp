@@ -1,19 +1,34 @@
 
-
 ######### COMPROBAR QUE FUNCIONAN EN MAPLE Y EXTENDER A OTROS DOMINIOS EUCLIDEOS
 
 
+# Teorema Chino de los restos:
+
+  # Si R es un anillo, A1,...,An son ideales comaximales dos a dos, A = A1*...*An y pr_i es la proyeccion de R/A a R/Ai,
+  # entonces f = pr_1 x ... x pr_n : R/A -> R/A1 x ... x R/An es un isomorfismo de anillos.
+
+  # En el caso de dominios euclideos, hay algoritmos sencillos para calcular el inverso de ese homomorfismo. En un D.E los ideales
+  # Ai son principales ademas de comaximales, y por lo tanto Ai=<mi>, A=<m>, con m=m1*...*mn, y gcd(mi,mj)=1.
+
 ######################## Normal #####################
 
-#Algoritmo para calcular el inverso del teorema chino de los restos para los enteros
-#Para generalizarlo a qualquier dominio, suponiendo eea ya generalizado, basta con sustituir
+# Algoritmo para calcular el inverso del teorema chino de los restos para los enteros
+# Para generalizarlo a qualquier dominio, suponiendo eea ya generalizado, basta con sustituir
 # *,/,mod,+ por los del dominio euclideo, y redefinir product y sum para que funciones con las
-#nuevas versiones de + y *.
-#Se usa / porque se sabe que la division es exacta, quotient() tambien valdria (es facil ver que en este
-#caso quotient es unico en cualquier dominio euclideo).
-#El algoritmo funciona perfectamente aunque eea o remainder() no tengan solucion unica, lo unico que
-#la solucion del algoritmo tampoco lo sera. Si se quiere solucion unica, hace falta un remainder unico
-#y consistente (mod en nuestro caso).
+# nuevas versiones de + y *.
+# Se usa / porque se sabe que la division es exacta, quotient() tambien valdria (es facil ver que si la
+# division es exacta quotient es unico en cualquier dominio euclideo).
+# El algoritmo funciona perfectamente aunque eea o remainder() no tengan solucion unica, lo unico que
+# la solucion del algoritmo tampoco lo sera. Si se quiere solucion unica, hace falta un remainder unico
+# y consistente (mod en nuestro caso).
+
+# Explicacion
+
+  # Llamemos g al isomorfismo inverso de f. Con un pequeño abuso de notacion, considerenado vi como elemento de R/<mi>
+  # y de R/<m> a la vez, tenemos que (v1,...,vn) = f(v1)*e1 + ... + f(vn)*en => g(v1,...,vn) = v1*g(e1) + ... + vn*g(en), 
+  # y por lo tanto se puede reducir el problema de calcular el inverso de un elemento arbitrario a calcular el inverso de los ei
+
+  # Si s*(m/mi) + t*mi = 1 = mcd(m/mi,m), entonces s*m/mi es el inverso de ei  (= 0 mod mj, = 1 mod mi)
 
 
 inverso := proc (m, v)
@@ -25,7 +40,7 @@ inverso := proc (m, v)
     c[i] := v[i]*s mod m[i];
   end do;
   local ret := sum(c[i]*k[i], i = 1 .. nops(m));
-  RETURN(ret mod prod);
+  return ret mod prod;
 end proc;
 
 
@@ -35,9 +50,19 @@ end proc;
 #para generalizarlo a cualquier dominio euclideo, habria que generalizar eea, y sustituir 
 #+,-/2,* y mod por los del dominio euclideo (mod=rem)
 
+
+# Explicacion
+
+  # Algo engorrosa para escribirla aqui. Se basa en expresar el inverso de (v1,...,vn) como u1 + m1*x1, y x1 a su vez como u2 + m2*x2,
+  # y asi sucesivamente. El inverso queda sum(ui*prod(mj)), con j=1..i-1, y el algoritmo va construyendo iterativamente ese sumatorio,
+  # despejando en cada iteracion ui. Para despejar ui hace falta calcular el inverso de un k en Zm (con mcd(k,m)=1), y para eso
+  # se usa el eea
+
+
+
 inverso_mod := proc(k,m)
   local g,s,t = eea(k,m); #g=1, si no no hay inverso
-  RETURN(s);
+  return s;
 end proc;
 
 
@@ -49,5 +74,5 @@ garner := proc(m,v)
     inv := u + u[i]*pm;
     pm := pm*m[i];
   end do;
-  RETURN(inv mod pm);
+  return inv mod pm;
 end proc;

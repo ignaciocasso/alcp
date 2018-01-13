@@ -1,27 +1,27 @@
 ALGORITMOS A PRESENTAR CURSO 2017-18
 
-Algoritmo de euclides para R un D.E cualquiera. y algoritmo de euclides extendido
+1 Algoritmo de euclides para R un D.E cualquiera. y algoritmo de euclides extendido
 
-Algoritmo para calcular el teorema chino del resto (i.e. calcular el inverso)
+2  Algoritmo para calcular el teorema chino del resto (i.e. calcular el inverso)
 
-Mcd en un D.F.U.
+3  Mcd en un D.F.U.
 
 
-Inverso de un elemento en un cuerpo finito.
+4  Inverso de un elemento en un cuerpo finito.
 	p,f irreducibles en Zp[x] -> K:=Zp[x] / (f(x)) |K|=p^(deg f)
 
 
 
-Test de irreducibilidad de un poliomio en Fq[x]
+5  Test de irreducibilidad de un poliomio en Fq[x]
 
-Logaritmo discreto en cuerpos Fq[x]/(f(x))
+6  Logaritmo discreto en cuerpos Fq[x]/(f(x))
 
 
 
-Algoritmo de factorización de un polinomio en cuerpo finito parte 1, 2 y 3.
+7  algoritmo de factorización de un polinomio en cuerpo finito parte 1, 2 y 3.
 
-Algoritmo de factorizacion de Berlekamp en cuerpos finitos 
+8  algoritmo de factorizacion de Berlekamp en cuerpos finitos 
 
-Algorimos de factorizacion en Z[x]
+9  algoritmos de factorizacion en Z[x]
 
-Algorimo de primalidad de AKS
+10 algoritmo de primalidad de AKS
