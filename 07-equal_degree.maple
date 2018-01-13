@@ -10,7 +10,7 @@
 # La tecnica usada para hacerlo es encontrar un divisor g de f y buscar recursivamente los factores
 # irreducibles de g y de f/g
 
-# Si g es un divisor no trivial de f, existen i y j,, g mod fi = 0, g mod fj != 0.
+# Si g es un divisor no trivial de f, existen i y j tq g mod fi = 0, g mod fj != 0.
 
 # Sea Ri = Fq[x]/<fi>, que es un cuerpo finito de orden k=q^d, y cuyas unidades Ri\{0} forman un grupo de orden k-1.
 # La teoria de grupos nos dice que si hi pertence a Ri\{0}, hi^((k-1)/2) = 1 o -1 con la misma probabilidad
@@ -18,7 +18,7 @@
 # (A no ser que la caracteristica sea 2, en cuyo caso 1-1 = -1-1 = 0 y sera 0 en Ri con probabilidad 1)
 
 # Entonces, si cogemos h aleatorio en Fq[x], g = h^((k-1)/2) -1 mod f, gi = g mod fi sera 0 con probabilidad 1/2,
-# y sera 0 para un i, y distinto de 0 para un j con probabilidad >= 1/2
+# y sera 0 para un i, y distinto de 0 para un j con probabilidad >= 1/2. El mcd de g y f sera el divisor buscado
 
 equal_degree_factorization := proc(f,x,p,k,alpha,d)
   if degree(f,x)=d return {f};
@@ -43,6 +43,3 @@ split := proc(f,x,q,d)
     return 0;
   end if;
 end proc;
-
-
-# Split no funciona para cuerpos de caracteristica 2, ya que

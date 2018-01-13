@@ -1,7 +1,10 @@
+
+############ COMPROBAR QUE FUNCIONA EN MAPLE
+
 # Algoritmo de Rabin para comprobar si un polinimio de Fq[x] es irreducible
 
-# Los elementos de Fq los representamos como elementos de Zp(alpha), con alpha la raiz de un polinomio irreducible en Zp[x]
-# Por lo tanto los elementos de Fq[x] los representamos como polinomios de Zp[alpha,x]
+# Los elementos de Fq los representamos como elementos de Zp(alpha), con alpha la raiz de un polinomio irreducible f en Zp[x]
+# Por lo tanto los elementos de Fq[x] los representamos como polinomios de Zp[alpha,x] (con grado en alpha menor que grado de f)
 
 # Teorema: x^(q^d) - x es el producto de todos los polinomios monicos irreducibles de Fq[x] cuyo grado
 # divide a d
@@ -12,14 +15,14 @@
 irreducible := proc (f, q, x)
   local a, t, n;
   n := degree(f, x);
-  a := `mod`(Powmod(x, q^n, f, x), p);
+  a := Powmod(x, q^n, f, x) mod p;
   if a <> x then
     return false
   end if;
   for t from 2 to iquo(n, 2) do
     if isprime(t) and irem(n, t) = 0 then
-      a := `mod`(Powmod(x, q^(n/t), f, x), p);
-      if `mod`(Gcd(a-x, f), p) <> 1 then
+      a := Powmod(x, q^(n/t), f, x) mod p;
+      if Gcd(a-x, f) mod p <> 1 then
         return false
       end if
     end if
@@ -27,9 +30,14 @@ irreducible := proc (f, q, x)
   return true;
 end proc;
 
+#Si f no es monico, devolvera true si f es el producto de un polinomio irreducible y su coeficiente director
+
+
 # Mejoras:
   # usar el modular composition algorithm para calcular x^(q^k) mod f
 
+
+# Pruebas
 
 p := 281;
 
@@ -39,7 +47,7 @@ f := Randprime(n, x)  mod p;
 
 alias(w = RootOf(f));
 
-g := `mod`(Randpoly(5, x, w), p);
+g := Randpoly(5, x, w) mod p;
 
 g := x^6+collect(g, [x]);
 

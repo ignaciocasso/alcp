@@ -1,3 +1,6 @@
+
+################### COMPROBAR QUE FUNCIONA EN MAPLE
+
 # La distinct degree factorization de f en Fq[x] es (g1,...,gm), con gi el producto de todos los polinomios monicos irreducibles
 # de grado i que dividen a f
 
@@ -7,9 +10,10 @@
 
 
 distinct_degree := proc(f,x,p,k)
+  local n := degree(f,x);
   local i:=1;
   local w := x;
-  while f<>1 do # suponemos que f es monico, si no seria degree(f)<>0
+  while f<>1 and i<=n/2 do # suponemos que f es monico, si no seria degree(f)<>0
     w := Powmod(w,q,f,x) mod p;
     g[i] := mcd(w-x,f);
     f := f/g[i];

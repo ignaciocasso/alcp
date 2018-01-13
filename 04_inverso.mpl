@@ -1,27 +1,20 @@
 
-inverso := proc(elem,p,f,x) #caracteristica p, cuerpo Zq[x]/f
-  local _,s;
-  _,s,_ := eea(elem,f);
-  RETURN(s mod p);
+############ COMPROBAR QUE FUNCIONA EN MAPLE
+
+# Si K = R/<m> es un cuerpo, con R un domineo euclideo y <m> ideal maximal, se puede calcular el inverso aplicando el
+# algoritmo de euclides extendido: mcd(k,m)=1, ya que m es primo, y si 1 = sk+tm, s es el inverso de k, ya que sk=sk+tm=1 mod m# 
+
+inverso := proc(g,x,p,f=x) #cuerpo Zq[x]/<f>,  Zp = Zp[x]/<x>, asi que tambien vale, aunque seria mas eficiente el de abajo
+  local s,t;
+  Gcdex(g,f,'s','t') mod p;
+  return s;
 end proc;
 
-eea := proc(g,h,p,f,x) #caracteristica p, cuerpo Zq[x]/f
-  
-
-eea := proc (a, b, p, f, x)
-  local c, c1, c2, d, d1, d2, q, r, r1, r2;
-  c,c1,c2 := a,1,0;
-  d,d1,d2 := b,0,1;
-  while d <> 0 do
-    q := Quo(c, d) mod p;
-    r := c-q*d mod p; r1 := c1-q*d1 mod p; r2 := c2-q*d2 mod p;
-    c,c1,c2 := d,d1,d2;
-    d,d1,d2 := r,r1,r2;
-  end do;
-  RETURN((c, c1, c2));
+inverso_p := proc(z,p)
+  local s,t;
+  gcdex(z,p,'s','t');
+  return s mod p;
 end proc;
-
-
 
 # Prueba 1: cuerpo Zp
 
