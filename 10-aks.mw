@@ -1,0 +1,56 @@
+AKS := proc(n) 
+local r,s,d,tm,tp,p,log2n,sqrtn,loop,primos,q,rp,a,ap,i;
+
+
+# Casos triviales
+
+if n<2 then
+   RETURN(false);
+end if;
+if n<4 then
+   RETURN(true);
+end if;
+if type(n,even) then
+   RETURN(false);
+end if;
+if issqr(n) then
+   RETURN(false);
+end if;
+
+# Buscamos factores primos de n hasta que q >= 4sqrt(r)*log2(n) con q mayor factor primo divisor de r-1 y n^((r-1)/q) mod r is not in {0,1}.
+
+log2n := evalf(log[2](n));
+sqrtn := floorRoot(n);
+d := 0; s := 0; r := 2;
+loop := true;
+
+while loop do
+   r := nextprime(r);
+   if irem(n,r) = 0 then RETURN(false); end if;
+   if r >= isqrt(n) then RETURN(true); end if;
+   primos := ifactors(r-1);
+   q := max([seq(primos[2][i][1], i = 1 .. numelems(primos[2]))]);
+   s := floor(evalf(2*isqrt(r)*evalf(log[2](n))));
+   if q >= 2*s then
+      if Power(n,iquo(r-1,q)) mod r <> 1
+         then loop := false;
+      end if;
+   end if;
+end do;
+
+# Comprobamos la relacion (x-a)^n = x^n-a (mod x^r - 1,n) con 1 <= a <= s 
+
+rp := (Power(x,n mod r)-1) mod n;
+for a from 1 to s do
+   ap  := Powmod(x-a,n,x^r-1,x) mod n;
+   if ap <> rp then RETURN(false); end if;
+   rp := rp - 1;
+end do;
+
+# Comprobamos si n=p^i con i>1 y p primo
+
+for i from 2 to floor(evalf(log[2](n))) do
+   if iroot(n,i)^i = n then RETURN(false); end if;
+end do;
+RETURN(true);
+end proc;
