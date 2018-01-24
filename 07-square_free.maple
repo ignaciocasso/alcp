@@ -1,7 +1,7 @@
 
 
 
-########## A COMPROBAR QUE FUNCIONA EN MAPLE
+########## Parece que funciona
 
 
 # Algoritmo para calcular la factorizacion libre de cuadrados de un polinomio en Fq[x]
@@ -32,45 +32,52 @@
   # f2 = raiz_p(a[pi])*x^i tq h=f2^p, y se aplica el algoritmo recursivamente sobre f2
 
 square_free := proc (f, p, k, x)
-  q := p^k;
-  n := degree(f, n);
-  i := 1
-  df := derivative(f, x, p);
-  c := Gcd(f,df) mod p;
-  w := Quo(f,c,x) mod p;
-  while w<>1 do
-    y := Gcd(w,c) mod p;
-    ret[i] := Quo(w, y, x) mod p;
-    i := i+1;
-    w := y;
-    c := Quo(c,y,x) mod p;
-  end do;
-  if c<>1 then  #Coeficientes multiplos de p. Si df no fue 0 y c acabo en uno no hay ninguno
-    f2 := p_root_pol(c,x,p,k);
-    sqf := square_free(f2, p, k, x);
-    for i to iquo(n, p) do
-      ret[p*i] := sqf[i];
+    local g,n,i,df,c,w,y,ret,f2,sqf,q;
+    q := p^k;
+    i := 1;
+    df := derivative(f, x, p);
+    c := Gcd(f,df) mod p;
+    w := Quo(f,c,x) mod p;
+    while w<>1 do
+        y := Gcd(w,c) mod p;
+        ret[i] := Quo(w, y, x) mod p;
+        i := i+1;
+        w := y;
+        c := Quo(c,y,x) mod p;
     end do;
-  end if;
-  return ret
+    if c<>1 then  #Coeficientes multiplos de p. Si df no fue 0 y c acabo en uno no hay ninguno
+        n := degree(c, x);
+        f2 := p_root_pol(c,x,p,k);
+        sqf := square_free(f2, p, k, x);
+        for i from 1 to iquo(n, p) do
+            ret[p*i] := sqf[i];
+        end do;
+    end if;
+    return ret
 end proc;
 
 
 dev := proc (f, x, p)
-  local n := degree(f, x);
-  return coeff(f, x, n)*n*x^(n-1) mod  p;
+    local n := degree(f, x);
+    return coeff(f, x, n)*n*x^(n-1) mod  p;
 end proc;
 
 derivative := proc (f, x, p)
-  return map(collect(dev, [x]), f, x, p);
+    return map(dev,collect(f, [x]), x, p);
 end proc;
 
 p_root_pol := proc(f,x,p,k) #supone que el polinomio solo tiene coeficientes multiplos de p (condicion necesaria para que la raiz exista)
-  local n := degree(f,x)  
-  f2 := sum( p_root(coeff(f, x, p*i),p,k) * x^i, i = 0..iquo(n, p));
+    local n,f2,i;
+    n := degree(f,x);
+    #f2 := sum( p_root(coeff(f, x, p*i),p,k)*x^i* , i = 0..iquo(n, p)); # Por algún motivo el primer i no es
+    f2 := 0 mod p;                                                      #  visible, así que hat que usar el for
+    for i from 0 to iquo(n,p) do
+        f2 := f2 + p_root(coeff(f, x, p*i),p,k) * x^i;
+    end do;
+    return f2;
 end proc;
 
-p_root(a,p,k)
-  Power(a,p^(k-1)) mod p;
+p_root := proc(a,p,k)
+    Power(a,p^(k-1)) mod p;
 end proc;
   
