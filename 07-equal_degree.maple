@@ -1,6 +1,6 @@
 
 
-############## A comprobar que funciona en maple, y a añadir el splitting para caracteristica 2, que no funciona con este algoritmo
+############## Parece que funciona, faltaría adaptarlo para que funcionase con caracteristica 2
 
 
 
@@ -20,26 +20,39 @@
 # Entonces, si cogemos h aleatorio en Fq[x], g = h^((k-1)/2) -1 mod f, gi = g mod fi sera 0 con probabilidad 1/2,
 # y sera 0 para un i, y distinto de 0 para un j con probabilidad >= 1/2. El mcd de g y f sera el divisor buscado
 
-equal_degree_factorization := proc(f,x,p,k,alpha,d)
-  if degree(f,x)=d return {f};
-  g := split(f,x,p,k,alpha,d);
-  while g=0 do
-    g := split(f,x,p,k,alpha,d);
-  end do;
-  return equal_degree_factorization(g) union equal_degree_factorization(f/g);
+equal_degree_factorization := proc(f,x,q,alpha,d)
+    local g1,g2;
+    if degree(f,x)=d then
+        return {f};
+    end if;
+    g1 := split(f,x,q,alpha,d);
+    while g1=0 do
+        g1 := split(f,x,q,alpha,d);
+    end do;
+    g2 := Quo(f,g1,x) mod p;
+    return equal_degree_factorization(g1,x,q,alpha,d) union equal_degree_factorization(g2,x,q,alpha,d);
 end proc;
 
 #Algoritmo probabilista para separar f en dos divisores. Devuelve 0 si fracasa
-split := proc(f,x,q,d)
-  local m,h;
-  m := rand(1..degree(f)-1); #Segun modern computer algebra. Segun geddes, grado 2n-1 directamente
-  h := Randpoly(m,x,alpha) mod p;
-  h := Powmod(h,(q^d-1)/2,f,x) mod p;
-  h := h-1;
-  mcd := Gcd(h,f) mod p;
-  if mcd<>1 and mcd<>f then  #tal vez haya que expandir o normalizar antes de comparar
-    return g;
-  else
-    return 0;
-  end if;
+split := proc(f,x,q,alpha,d)
+    local m,h,mcd;
+    m := rand(1..degree(f)-1); #Segun modern computer algebra. Segun geddes, grado 2n-1 directamente
+    if alpha = 1 then
+        h := Randpoly(m(),x) mod p;
+    else
+        h := Randpoly(m(),x,alpha) mod p;
+    end;
+    h := Powmod(h,(q^d-1)/2,f,x) mod p;
+    h := h-1;
+    mcd := Gcd(h,f) mod p;
+    if mcd<>1 and mcd<>f then  # puede que la comparación directa entre f y g no funcione y que haya que expandir antes
+        return mcd;
+    else
+        return 0;
+    end if;
 end proc;
+
+
+
+
+# Deberian ser monicos los polinomios aleatorios?
