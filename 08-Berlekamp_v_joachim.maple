@@ -1,0 +1,85 @@
+
+############ Parece que funciona
+
+# f es un polinomio square-free en Fq[x] de grado n, y factoriza en f1,...,fr
+
+# Denotamos K = Fq[x]/<f>, Ki = Fq[x]/<fi>, y sabemos que K es isomorfo a K1 x ... x Kr, vía el isomorfismo h
+
+# K es un espacio vectorial n-dimensional sobre Fq, con base {1,x,...,x^n-1}
+
+# Nos interesa el conjunto W = { v pertenecientes a K | v^q = v }, que es subespacio vectorial de K (fácil de comprobar)
+
+# Si f es irreducible => K es un cuerpo => z^q - z tiene exactamente q raíces en K => el conjunto de esas raíces es Fq => W es Fq y tiene dimensión 1
+
+# Si restringimos h a W, nos queda un isomorfismo hw entre W y W1 x...x Wr = Fq x...x Fq (fácil de comprobar)
+
+# Por lo tanto, si v en W => v mod fi está en Fq => v^((q-1)/2) = 1 o -1 con igual probabilidad (si q!=p^k) => fi | v^(q-1)/2) - 1 con probabilidad 1/2
+# y podemos proceder de forma similar a como se hace en Cantor-Zassenhaus
+
+# Para ello solo necesitamos obtener una base de W, y lo haremos a partir de la matriz Q del homomorfismo de K -> K, g -> g^q - g, cuyo núcleo es W.
+
+berlekamp := proc(f,x,p,k,alpha)
+    local Q,B,n,mcd,factors,factor,v,fqelem,r,fun1,random,c,pr,g,rnd;
+    Q := construirQ(f,x,p,p^k);
+    B := Nullspace(Q) mod p;
+    r := numelems(B);
+    B := [seq(listToFq(B[i],x), i=1..r)];
+    factors := {f};
+    rnd := rand(0..p^k-1);
+    n := degree(f,x);
+    while numelems(factors)<r do
+        v := randomFq(B,rnd,p,k,alpha);
+        for factor in factors do
+            g := Gcd(v,factor) mod p;
+            if g<>1 and g<>factor then
+                factors := factors union {g, Quo(factor,g,x) mod p} minus {factor}; # Tal vez haya problemas con el iterador de factors
+            else
+                g := Powmod(g,(p^k-1)/2,factor,x) mod p;
+                g := Gcd(g-1,factor) mod p;
+                if g<>1 and g<>factor then
+                    factors := factors union {g, Quo(factor,g,x) mod p} minus {factor};
+                end;
+            end;
+        end do;
+    end do;
+end proc;
+
+listToFq := proc(coeffs,x)
+    local g,i;
+    g := 0;
+    for i from 1 to numelems(coeffs) do
+        g := g +    coeffs[i]*x^(i-1);
+    end do;
+end proc;
+
+randomFq := proc(B,rand,p,k,alpha)
+    local z,v,c;
+    z := 0;
+    for v in B do
+        c := toFq(rand(),p,k,alpha);
+        z := z + c*v mod p;
+    end do;
+    return z;
+end proc;
+
+toFq := proc(n,p,k,alpha)
+    local ret := 0;
+    local i;
+    local m := n;
+    for i from 1 to k do
+        ret := ret + irem(m,p)*w^(i-1);
+        m := iquo(m,p);
+    end do;
+    return ret;
+end proc;
+    
+construirQ := proc(f,x,p,q)
+    local n,k,fun;
+    n := degree(f,x);
+    g||1 := 0; # imagen de 1
+    for k from 1 to n-1 do
+        g||(k+1) := Powmod(x,q*k,f,x) mod p - x^k mod p; # imagen de x^k;
+    end do;
+    fun := (i,j) -> coeff(g||j,x,i-1); # La columna i-iésima de Q es la imagen de Bi = x^(i-1)
+    return Matrix(n,fun);
+end proc;
