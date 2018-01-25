@@ -51,8 +51,3 @@ split := proc(f,x,q,alpha,d)
         return 0;
     end if;
 end proc;
-
-
-
-
-# Deberian ser monicos los polinomios aleatorios?
