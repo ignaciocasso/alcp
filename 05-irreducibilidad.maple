@@ -1,5 +1,5 @@
 
-############ COMPROBAR QUE FUNCIONA EN MAPLE
+############ Parece que funciona
 
 # Algoritmo de Rabin para comprobar si un polinimio de Fq[x] es irreducible
 
@@ -35,22 +35,4 @@ end proc;
 
 # Mejoras:
   # usar el modular composition algorithm para calcular x^(q^k) mod f
-
-
-# Pruebas
-
-p := 281;
-
-n := 4;
-
-f := Randprime(n, x)  mod p;
-
-alias(w = RootOf(f));
-
-g := Randpoly(5, x, w) mod p;
-
-g := x^6+collect(g, [x]);
-
-q := p^n;
-
-irreducible(g, q, x);
+  
