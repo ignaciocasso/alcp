@@ -1,0 +1,41 @@
+
+
+# No existe un algoritmo general para calcular el mcd en cualquier dfu F, así que vamos a intentar cubrir algunos casos
+# por separado.
+
+# Caso 1: R es un DFU en el que sabemos calcular el mcd, y F = R[x]
+# Teorema: pseudo-división en R[x]:
+# Sean a(x), b(x) en R[x], b(x)!=0, c el coeficiente director de b, d = deg(a)-deg(b)+1.
+# Existen polinomios q(x),r(x) tq c^d*a(x) = q(x)*b(x)+r(x), deg(r)<deg(b);
+# Teorema: mcd(a(x),b(x)) = mcd(b(x), primitive_part(r(x))).
+# Por lo tanto, si se sabe calcular el mcd en R y la pseudo-división en R[x], se puede aplicar un algoritmo análogo al de euclides,
+# llamodo algoritmo de euclides primitivo. Nosotros lo implementaremos para Z[x]
+
+euclides_primitivo := proc(a,b,x)
+    local c,d,r,cont,lc,n;
+    c := primitive_part(a,x);
+    d := primitive_part(b,x);
+    while d<>0 do
+        lc := lcoeff(d,[x]);
+        n := degree(c,[x]) - degree(d,[x]) + 1;
+        r := rem(lc^n * c, d, x);  
+        c := d;
+        d := primitive_part(r,x);
+    end;
+    cont := igcd(contenido(a,x), contenido(b,x));
+    return cont*c;
+end proc;
+
+contenido := proc(p,x)
+    return igcd_multiple([coeffs(p,[x])]);
+end proc;
+
+igcd_multiple := proc(s)
+    if numelems(s)=1 then return s[1] end;
+    return igcd(s[1],igcd_multiple(s[2..numelems(s)]));
+end proc;
+
+primitive_part := proc(p,x)
+    if p=0 then return 0 end;
+    return quo(p,contenido(p,x),x);
+end proc;
