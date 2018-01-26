@@ -46,8 +46,8 @@ end proc;
 euclides_unico := proc (a, b)
   local c, d, g;
   c := abs(a); d := abs(b); #no es estrictamente necesario, pero si en el libro lo hacen sera por algo
-  g := euclides(c,d).
-  return abs(c);
+  g := euclides(c,d);
+  return abs(g);
 end proc;
 
 
@@ -60,8 +60,8 @@ end proc;
 # Explicacion
 
   # Hay un teorema que dice que si g = mcd(a,b), entonces existen s y t tq g = sa + bt. El algoritmo de euclides
-  # extendido calcula esos s y t ademas de g. Lo que hace para ello es añadir algunas variables mas (c1,c2,d1yd2) y
-  # algunas instrucciones mas para que a lo largo del bucle se cumpla el invariante c1*a+c2*b=c, d1*a+d2*b=d.
+  # extendido calcula esos s y t ademas de g. Lo que hace para ello es añadir algunas variables más (c1,c2,d1yd2) y
+  # algunas instrucciones más para que a lo largo del bucle se cumpla el invariante c1*a+c2*b=c, d1*a+d2*b=d.
   # Cuando acaba el bucle y g=c, nos queda que s=c1 y t=c2
 
 eea := proc (a, b)
@@ -74,7 +74,7 @@ eea := proc (a, b)
     c,c1,c2 := d,d1,d2;
     d,d1,d2 := r,r1,r2;
   end do;
-  RETURN((c, c1, c2));
+  return c, c1, c2;
 end proc;
 
 
@@ -95,10 +95,11 @@ end proc;
 
 
 eea_unico := proc (a, b)
-  local a2 := abs(a);
-  local b2 := abs(b);
-  g,s,t := eea(a2,b2);
-  s := s/(sign(a)*sign(g));
-  t := t/(sign(b)*sign(g));
-  RETURN((abs(g),s,t));
+    local a2,b2,g,s,t;
+    a2 := abs(a);
+    b2 := abs(b);
+    g,s,t := eea(a2,b2);
+    s := s/(sign(a)*sign(g));
+    t := t/(sign(b)*sign(g));
+    RETURN((abs(g),s,t));
 end proc;
