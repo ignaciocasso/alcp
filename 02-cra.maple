@@ -1,5 +1,5 @@
 
-######### COMPROBAR QUE FUNCIONAN EN MAPLE Y EXTENDER A OTROS DOMINIOS EUCLIDEOS
+## Parece que funciona
 
 
 # Teorema Chino de los restos:
@@ -13,7 +13,7 @@
 ######################## Normal #####################
 
 # Algoritmo para calcular el inverso del teorema chino de los restos para los enteros
-# Para generalizarlo a qualquier dominio, suponiendo eea ya generalizado, basta con sustituir
+# Para generalizarlo a qualquier dominio, basta con sustituir igcdex por el algoritmo de euclides extendido,
 # *,/,mod,+ por los del dominio euclideo, y redefinir product y sum para que funciones con las
 # nuevas versiones de + y *.
 # Se usa / porque se sabe que la division es exacta, quotient() tambien valdria (es facil ver que si la
@@ -32,15 +32,15 @@
 
 
 inverso := proc (m, v)
-  local k, s;
-  local prod = product(m[i], i = 1 .. nops(m));
-  for i to nops(m) do
-    k[i] := prod/m[i];
-    _, s, _ := eea(k[i],m[i]);
-    c[i] := v[i]*s mod m[i];
-  end do;
-  local ret := sum(c[i]*k[i], i = 1 .. nops(m));
-  return ret mod prod;
+    local k,s,prod,i,ret,c,t,g;
+    prod := product(m[i], i = 1 .. nops(m));
+    for i from 1 to nops(m) do
+        k[i] := prod/m[i];
+        igcdex(k[i],m[i],'s','t');
+        c[i] := v[i]*s mod m[i];
+    end do;
+    ret := sum(c[j]*k[j], j = 1 .. nops(m));
+    return ret mod prod;
 end proc;
 
 
@@ -61,18 +61,20 @@ end proc;
 
 
 inverso_mod := proc(k,m)
-  local g,s,t = eea(k,m); #g=1, si no no hay inverso
-  return s;
+    local g,s,t;
+    g := igcdex(k,m,s,t); #g=1, si no no hay inverso
+    return s;
 end proc;
 
 
 garner := proc(m,v)
-  local inv := 0;
-  local pm := 1;
-  for i from 1 to nops(m) do
-    u[i]:=(v[i]-inv)*inverso_mod(pm,m[i]) mod m[i];
-    inv := u + u[i]*pm;
-    pm := pm*m[i];
-  end do;
-  return inv mod pm;
+    local i,inv,pm,u;
+    inv := 0;
+    pm := 1;
+    for i from 1 to nops(m) do
+        u[i]:=(v[i]-inv)*inverso_mod(pm,m[i]) mod m[i];
+        inv := inv + u[i]*pm;
+        pm := pm*m[i];
+    end do;
+    return inv mod pm;
 end proc;
