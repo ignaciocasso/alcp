@@ -1,13 +1,8 @@
 
-# COMPROBAR QUE FUNCIONAN EN MAPLE Y EXTENDER A OTROS DOMINIOS EUCLIDEOS
-
 
 ######################### EUCLIDES #########################
 
-# Algoritmo de euclides para los enteros. Para generalizarlo a dominios
-# euclideos basta con sustituir irem y 0 por la funcion remainder() y
-# el elemento zero del dominio euclideo (suponiendo que la division euclidea es computable
-# en ese dominio, si no lo pues no hay nada que hacer)
+# Algoritmo de euclides para cualquier dominio euclídeo, suponiendo conocidos zero y remainder
 
 # Explicacion del algoritmo
 
@@ -18,8 +13,8 @@
 euclides := proc (a, b)
   local c, d, r;
   c := a; d := b;
-  while d <> 0 do
-    r := irem(c, d);
+  while d <> zero do
+    r := remainder(c, d);
     c := d;
     d := r;
   end do;
@@ -31,10 +26,7 @@ end proc;
 ######################## EUCLIDES UNICO ##################################
 
 
-# Algoritmo de euclides con mcd unico para los enteros. Para generalizarlo a dominios
-# euclideos, suponiendo ya generalizado euclides(), basta con sustituir abs() por la funcion
-# normal_part() del dominio euclideo, si la tiene (si no pues no hay mcd unico, a no ser que
-# el 1 sea la unica unidad)
+# Algoritmo de euclides con mcd unico para cualquier dominio euclídeo
 
 # Explicacion
   
@@ -45,17 +37,16 @@ end proc;
 
 euclides_unico := proc (a, b)
   local c, d, g;
-  c := abs(a); d := abs(b); #no es estrictamente necesario, pero si en el libro lo hacen sera por algo
+  c := normal_part(a); d := normal_part(b); #no es estrictamente necesario, pero si en el libro lo hacen sera por algo
   g := euclides(c,d);
-  return abs(g);
+  return normal_part(g);
 end proc;
 
 
 ####################### EUCLIDES EXTENDIDO ###################################
 
-# algoritmo de euclides extendido para los enteros. Para generalizarlo a cualquier dominio euclideo
-# basta con sustituir 0, iquo, -, * por el zero,quotient(),- y * del dominio euclideo, donde -
-# es el operador binario ( a-b = a+(-b) )
+# algoritmo de euclides extendido para cualquier dominio euclideo, suponiendo definidad las constantes zero y one y las funciones
+# producto, resta, quotient
 
 # Explicacion
 
@@ -65,12 +56,14 @@ end proc;
   # Cuando acaba el bucle y g=c, nos queda que s=c1 y t=c2
 
 eea := proc (a, b)
-  local c, c1, c2, d, d1, d2, q, r, r1, r2;
-  c,c1,c2 := a,1,0;
-  d,d1,d2 := b,0,1;
-  while d <> 0 do
-    q := iquo(c, d);
-    r := c-q*d; r1 := c1-q*d1; r2 := c2-q*d2;
+  local c, c1, c2, d, d1, d2, q, r, r1, r2,`&*`, `&-`;
+  `&*` := (a,b) -> producto(a,b);
+  `&-` := (a,b) -> resta(a,b);
+  c,c1,c2 := a,one,zero;
+  d,d1,d2 := b,zero,one;
+  while d <> zero do
+    q := quotient(c, d);
+    r := c &- (q&*d); r1 := c1 &- (q&*d1); r2 := c2 - (q&*d2);
     c,c1,c2 := d,d1,d2;
     d,d1,d2 := r,r1,r2;
   end do;
@@ -80,11 +73,7 @@ end proc;
 
 ####################### EUCLIDES EXTENDIDO UNICO ############################
 
-# algoritmo de euclides extendido con mcd unico para los enteros. Para generalizarlo a cualquier dominio
-# euclideo, suponiendo eea ya generalizado, basta con sustituir abs,sign,y / por las funciones
-# normal_part(), unit_part() y / del dominio euclideo, si las tienen. Se usa / porque la division es exacta,
-# ya que el segundo miembro es una unidad (a/b = a*inv(b) = quotient(a,b)), cualquiera de las 3 vale
-# (es trivial comprobar que quotient es unico en este caso)
+# algoritmo de euclides extendido con mcd unico
 
 
 # Explicacion
@@ -96,10 +85,10 @@ end proc;
 
 eea_unico := proc (a, b)
     local a2,b2,g,s,t;
-    a2 := abs(a);
-    b2 := abs(b);
+    a2 := normal_part(a);
+    b2 := normal_part(b);
     g,s,t := eea(a2,b2);
-    s := s/(sign(a)*sign(g));
-    t := t/(sign(b)*sign(g));
-    RETURN((abs(g),s,t));
+    s := quotient(s,unit_part(a)*unit_part(g));
+    t := quotient(t,unit_part(b)*unit_part(g));
+    return normal_part(g),s,t;
 end proc;
