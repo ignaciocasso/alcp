@@ -1,0 +1,144 @@
+
+############ Parece que funciona
+
+# f es un polinomio square-free en Fq[x] de grado n, y factoriza en f1,...,fr
+
+# Denotamos K = Fq[x]/<f>, Ki = Fq[x]/<fi>, y sabemos que K es isomorfo a K1 x ... x Kr, vía el isomorfismo h
+
+# K es un espacio vectorial n-dimensional sobre Fq, con base {1,x,...,x^n-1}
+
+# Nos interesa el conjunto W = { v pertenecientes a K | v^q = v }, que es subespacio vectorial de K (fácil de comprobar)
+
+# Si f es irreducible => K es un cuerpo => z^q - z tiene exactamente q raíces en K => el conjunto de esas raíces es Fq => W es Fq y tiene dimensión 1
+
+# Si restringimos h a W, nos queda un isomorfismo hw entre W y W1 x...x Wr (fácil de comprobar)
+
+# De las dos afirmaciones anteriores se deduce que W tiene dimensión r
+
+# Sea v(x) en W. x^q-x = prod(x-s | s en Fq) => v^q-v = prod(v-s | s en Fq). Por otro lado, mcd(v-s1,v-s2)=1, y fi | f | v^q-v
+# De esto se deduce que fi divide a exactamente un v-s, y que f = prod( mcd(v-s,f) | s en Fq)
+
+# Además si tenemos {v1,...,vr} una base de W, como hw es isomorfismo y W1 x...x Wr = Fq x...x Fq, tenemos que
+# para todo i,j, existe k,, a = hwi(vk) != hwj(vk) = b => fi | vk-a, fj | vk-b
+
+# Por lo tanto, si obtenemos una base de W, mediante mcds entre v-s y f o otros factores ya calculados de f, podemos acabar separando f en todos sus factores
+# irreducible, y en eso se basa el algoritmo de Berlekamp
+
+# Necesitamos entonces obtener una base de W, y lo haremos a partir de la matriz Q del homomorfismo de K -> K, g -> g^q - g, cuyo núcleo es W.
+
+berlekamp_det := proc(f,x,p,k,alpha:=0)
+    local Q,B,n,mcd,factors,factor,v,fqelem,r,j;
+    Q := construirQ(f,x,p,p^k);
+    B := Nullspace(Q) mod p;
+    factors := {f};
+    n := degree(f,x);
+    for r from 2 to numelems(B) do  # B[1] va a ser siempre 1;
+        v := seq(B[r][i], i=1..n);
+        v := sum(v[i2] * x^(i2-1), i2=1..n);
+        for factor in factors do
+            fqelem := 0;
+            for  j from 1 to p^k do
+                mcd := Gcd(v-fqelem,factor) mod p;
+                if mcd<>1 and mcd<>factor then
+                    factors := factors minus {factor};
+                    factor := Quo(factor,mcd,x) mod p;
+                    factors := factors union {factor,mcd};
+                    if numelems(factors)=numelems(B) then
+                        return factors;
+                    end;
+                end;
+                if alpha=0 then fqelem := Nextpoly(fqelem,x) mod p;
+                else            fqelem := Nextpoly(fqelem,x,alpha) mod p;
+                end if;                
+            end do;
+        end do;
+    end do;
+    return factors;
+end proc;
+    
+construirQ := proc(f,x,p,q)
+    local n,k,fun;
+    n := degree(f,x);
+    g||1 := 0; # imagen de 1
+    for k from 1 to n-1 do
+        g||(k+1) := Powmod(x,q*k,f,x) mod p - x^k mod p; # imagen de x^k;
+    end do;
+    fun := (i,j) -> coeff(g||j,x,i-1); # La columna i-iésima de Q es la imagen de Bi = x^(i-1)
+    return Matrix(n,fun);
+end proc;
+
+# Optimizaiones
+    # Si f(x) = a0 +...+ an*x^n, entonces x^n mod f es -a0 -...- an-1*x^(n-1)
+    # Si x^m mod f = b0 +...+bn-1*xn-1 => x^(m+1) mod f = bo*x + ... + bn-1*x^n = bo*x +...+bn-1*(-a0-...-an-1*xn-1) = -bn-1*a0 + (b0-bn-1*a1)x + ...,
+    # y se pueden sacar iterativamente los x^qi mod f
+    
+   
+   
+   
+   
+   
+   
+   
+############################## Versión Modern Computer Algebra    
+    
+
+# f es un polinomio square-free en Fq[x] de grado n, y factoriza en f1,...,fr
+
+# Denotamos K = Fq[x]/<f>, Ki = Fq[x]/<fi>, y sabemos que K es isomorfo a K1 x ... x Kr, vía el isomorfismo h
+
+# K es un espacio vectorial n-dimensional sobre Fq, con base {1,x,...,x^n-1}
+
+# Nos interesa el conjunto W = { v pertenecientes a K | v^q = v }, que es subespacio vectorial de K (fácil de comprobar)
+
+# Si f es irreducible => K es un cuerpo => z^q - z tiene exactamente q raíces en K => el conjunto de esas raíces es Fq => W es Fq y tiene dimensión 1
+
+# Si restringimos h a W, nos queda un isomorfismo hw entre W y W1 x...x Wr = Fq x...x Fq (fácil de comprobar)
+
+# Por lo tanto, si v en W => v mod fi está en Fq => v^((q-1)/2) mod fi = 1 o -1 con igual probabilidad => fi | v^(q-1)/2) - 1 con probabilidad 1/2 (si q!=2^k)
+# y podemos proceder de forma similar a como se hace en Cantor-Zassenhaus
+
+# Para ello solo necesitamos obtener una base de W, y lo haremos a partir de la matriz Q del homomorfismo de K -> K, g -> g^q - g, cuyo núcleo es W.
+
+berlekamp_prob := proc(f_input,x,p,k,alpha:=0)
+    local Q,B,n,mcd,factors,factor,v,fqelem,r,fun1,random,c,pr,g,rnd,f;
+    f := Quo(f_input,lcoeff(f_input,x),x) mod p;
+    Q := construirQ(f,x,p,p^k);
+    B := Nullspace(Q) mod p;
+    r := numelems(B);
+    B := [seq(listToFq(B[i],x), i=1..r)];
+    factors := {f};
+    rnd := rand(0..p^k-1);
+    n := degree(f,x);
+    while numelems(factors)<r do
+        v := add(randFq(p,alpha)*vi, vi in B); #v := randomFq(B,rnd,p,k,alpha);
+        for factor in factors do
+            g := Gcd(v,factor) mod p;
+            if g<>1 and g<>factor then
+                factors := factors union {g, Quo(factor,g,x) mod p} minus {factor}; # Tal vez haya problemas con el iterador de factors
+            else
+                g := Powmod(g,(p^k-1)/2,factor,x) mod p;
+                g := Gcd(g-1,factor) mod p;
+                if g<>1 and g<>factor then
+                    factors := factors union {g, Quo(factor,g,x) mod p} minus {factor};
+                end;
+            end;
+        end do;
+    end do;
+    return factors;
+end proc;
+
+
+randFq := proc(p,alpha)
+    if alpha=0 then return rand(0..p-1)();
+    else return Randprime(1,x,alpha) mod p - x;
+    end if;
+end proc;
+
+
+listToFq := proc(coeffs,x)
+    local g,i;
+    g := 0;
+    for i from 1 to numelems(coeffs) do
+        g := g +    coeffs[i]*x^(i-1);
+    end do;
+end proc;
