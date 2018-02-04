@@ -24,8 +24,9 @@ distinct_degree := proc(f_input,x,p,k)
     end do;
     if f<>1 then
         g[degree(f,x)] := f;
+        i := degree(f,x)+1;
     end;
-    return g;
+    return [seq(g[idx], idx=1..i-1)];
 end proc;
 
 

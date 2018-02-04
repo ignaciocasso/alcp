@@ -1,9 +1,4 @@
 
-
-
-########## Parece que funciona
-
-
 # Algoritmo para calcular la factorizacion libre de cuadrados de un polinomio en Fq[x]
 
 # La factorizacion libre de cuadrados de f en Fq[x] es (g1,...,gm), con f = g1^1*...*gm^m y mcd(gi,gj)=1
@@ -32,7 +27,7 @@
   # f2 = raiz_p(a[pi])*x^i tq h=f2^p, y se aplica el algoritmo recursivamente sobre f2
 
 square_free := proc (f, p, k, x)
-    local g,n,i,df,c,w,y,ret,f2,sqf,q;
+    local g,n,i,j,df,c,w,y,ret,f2,sqf,q;
     q := p^k;
     i := 1;
     df := derivative(f, x, p);
@@ -49,11 +44,14 @@ square_free := proc (f, p, k, x)
         n := degree(c, x);
         f2 := p_root_pol(c,x,p,k);
         sqf := square_free(f2, p, k, x);
-        for i from 1 to iquo(n, p) do
-            ret[p*i] := sqf[i];
+        for i from i to nops(sqf)*p do
+            ret[i] := 1;
+        end do;
+        for j from 1 to nops(sqf) do
+            ret[p*j] := sqf[j];
         end do;
     end if;
-    return ret
+    return [seq(ret[idx], idx=1..i-1)];
 end proc;
 
 

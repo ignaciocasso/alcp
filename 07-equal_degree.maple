@@ -1,6 +1,6 @@
 
 
-############## Parece que funciona, faltaría adaptarlo para que funcionase con caracteristica 2
+############## Sólo funciona para característica mayor que 2. Para característica 2 hace falta un split distinto
 
 
 
@@ -22,6 +22,9 @@
 
 equal_degree_factorization := proc(f,x,q,alpha,d)
     local g1,g2;
+    if degree(f,x)=0 then
+        return {};
+    end if;
     if degree(f,x)=d then
         return {f};
     end if;
