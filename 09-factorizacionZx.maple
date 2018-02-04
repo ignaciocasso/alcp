@@ -1,0 +1,66 @@
+
+
+# Factorización en Z[x]
+
+with(combinat,choose):
+
+fact := proc(f,x)
+    local n,lc,MB,p,df,factors,T,s,G,f2,S,g,h;
+    if gcd(f,diff(f,x))<>1 then
+        print("el polinomio no es square-free");
+        return {};
+    end if;
+    n := degree(f,x);
+    lc := lcoeff(f,x);
+    MB := sqrt(n+1.0)*2^n*lc*norm(f,infinity,x);
+    p := nextprime(ceil(2*MB));
+    df := diff(f,x);
+    while p<4*MB and Gcd(f,df) mod p <> 1 do
+        p := nextprime(p);
+    end do;
+    factors := (Factors(f) mod p);
+    factors := factors[2];
+    factors := [seq(fc[1], fc in factors)];
+    factors := [seq(normalize(pol,x,p), pol in factors)];
+    T := {seq(1..nops(factors))};
+    s := 1;
+    G := {};
+    f2 := f;
+    while 2*s<=numelems(T) do
+        for S in choose(T,s) do
+            g := mul(factors[i], i in S);
+            h := mul(factors[i], i in (T minus S));
+            g := Expand(lc*g) mod p;
+            h := Expand(lc*h) mod p;
+            g := normalize(g,x,p);
+            h := normalize(h,x,p);
+            if norm(g,1,x)*norm(h,1,x) <= MB then
+                T := T minus S;
+                G := G union {primpart(g,x)};
+                f2 := primpart(h,x);
+                lc := lcoeff(f2,x);
+            end;
+        end do;
+        s := s+1;
+    end do;
+    return G union {f2};
+end proc;
+
+normalize := proc(f,x,p)
+    return map(normalize_monomial,f,x,p);
+end proc;
+    
+normalize_monomial := proc(f,x,p)
+    local n,c;
+    n := degree(f,x);
+    c := coeff(f,x,n);
+    return symmetric_representation(c,p)*x^n;
+end proc;
+    
+symmetric_representation := proc(z,p)
+    if z > (p-1)/2 then
+        return z-p;
+    else
+        return z;
+    end;
+end proc;
