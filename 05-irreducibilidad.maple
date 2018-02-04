@@ -12,14 +12,15 @@
 # Conclusion: f polinomio monico de grado n es irreducible si y solo si f | x^(q^n)-x
 # y gcd(x^(q^(n/t))-x,f) = 1 para todo t divisor primo de n
 
-irreducible := proc (f, q, x)
+irreducible := proc (f, p, q, x)
   local a, t, n;
   n := degree(f, x);
+  if n=1 then return true end if;  # Si no distinguimos este caso habría que comparar con Rem(x,f) dos lineas más abajo
   a := Powmod(x, q^n, f, x) mod p;
   if a <> x then
     return false
   end if;
-  for t from 2 to iquo(n, 2) do
+  for t from 2 to n do
     if isprime(t) and irem(n, t) = 0 then
       a := Powmod(x, q^(n/t), f, x) mod p;
       if Gcd(a-x, f) mod p <> 1 then
